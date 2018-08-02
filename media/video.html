@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>美图</title>
+    <style>
+        .container {
+            width: 100%;
+            height: 100%;
+        }
+
+        .header {
+            width: 100%;
+            height: 0;
+            padding-bottom: 67%;
+            position: fixed;
+            top: 0;
+            z-index: 2;
+        }
+
+        .vidBox {
+            width: 100%;
+            background: url('./images/logo.png')no-repeat;
+            background-size: cover;
+        }
+
+        .vidBox video {
+            width: 100%;
+            height: 100%;
+        }
+
+        .details {
+            /* width: 80%; */
+            display: flex;
+            justify-content: space-around;
+            border-bottom: 1px solid #dadada;
+            background: #fff;
+            padding: .2rem 0;
+        }
+
+        .details img {
+            width: 1.8rem;
+            height: 1.8rem;
+        }
+
+        .details .right>img {
+            width: 1.5rem;
+            height: 1.5rem;
+        }
+
+        .details input {
+            width: 3rem;
+            border: white;
+            position: relative;
+            top: -.1rem;
+        }
+        .details .right input{
+            position: relative;
+            top: -.1rem;
+        }
+
+
+        .title {
+            background: #EEEEEE;
+            display: flex;
+            justify-content: space-around;
+            /* font: 14px/1.5 "Helvetica Neue", Helvetica, Arial, "Microsoft Yahei", "Hiragino Sans GB", "Heiti SC", "WenQuanYi Micro Hei", sans-serif; */
+            /* color: white; */
+            font-family: '微软雅黑';
+            height: 2rem;
+            line-height: 2rem;
+        }
+        .imgBox {
+            width: 40%;
+        }
+        .content img {
+            width: 100%;
+            margin-right: .5rem;
+            padding: .2rem 0;
+        }
+
+        .item {
+            display: flex;
+            justify-content: space-around;
+            border-bottom: 1px solid #EEEEEE;
+            /* margin-top: .8rem; */
+            font-size: .8rem;
+
+        }
+
+        .item .info {
+            width: 34%;
+            margin-top: .5rem;
+        }
+
+        .item .info>span {
+            width: 100%;
+            display: block;
+            color: #ccc;
+        }
+
+        .item .info>span:nth-child(1) {
+            color: black;
+        }
+
+        .item .info>span:nth-child(3) {
+            background: #ff9300;
+            line-height: 1.5rem;
+            width: 62%;
+            text-align: center;
+            border-radius: 1rem;
+            /* margin-left: 1rem; */
+            margin-top: .6rem;
+            color: #fff;
+        }
+
+        .item .icon {
+            width: 15%;
+            color: #666;
+            margin-top: .5rem;
+        }
+
+        .item .icon>div:nth-child(2) {
+            margin-top: 1rem;
+        }
+       
+        .toZanImg_r{
+            background: url('./images/zan_r.svg') no-repeat;
+        }
+        .toZanImg_n{
+            background: url('./images/zan_n.svg') no-repeat;
+        }
+        .toReadImg_r{
+            background: url('./images/look_gr.svg')no-repeat;
+        }
+        .toReadImg_n{
+            background: url('./images/look_g.svg')no-repeat;
+        }
+
+        .icon .iconList{
+            width: 1rem;
+            height: 1rem;
+            background-size: cover;
+            display: inline-block;
+        }
+        .details .icons{
+            width: 1.2rem;
+            height: 1.2rem;
+            background-size: cover;
+            display: inline-block;
+        }
+  
+        .icon input{
+            width: 2rem;
+            border: #fff;
+            background: rgba(0, 0, 0, 0);
+            position: relative;
+            top: -.2rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="vidBox">
+                <video id="myVideo"  loop="loop" class="toggleVid" controls src="http://p3kkiwyka.bkt.clouddn.com/alisa/video/PT03.mp4" preload='none'></video>
+            </div>
+            <div class="details">
+                <div class="left">
+                    <!-- <img src="../images/look_g.svg" alt=""> -->
+                    <div class="icons lookIcon toReadImg_n"></div>
+                    <input readonly type="text" value="0">
+                </div>
+                <div class="right"> 
+                    <!-- <img src="../images/zan_n.svg" alt=""> -->
+                    <div class="icons zanIcon toZanImg_n"></div>
+                    <input readonly type="text" value="0">
+                </div>
+            </div>
+            <div class="title">
+                <span class="newClass">NEW</span>
+                <span class="hotClass">HOT</span>
+            </div>
+        </div>
+
+        <div class="content">
+            <div class="newList"></div>
+            <div class="hotList">
+            </div>
+        </div>
+    </div>
+    <script src="http://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            var unionid=1111;
+            var headerHeight=$('.header').innerHeight()
+            var titleHeight=$('.title').innerHeight()
+            $('.content').css('margin-top',headerHeight+titleHeight+'px')
+            var newUrl = 'https://api.alisadance.cn/api/media/person/1/?limit=20&offset=0&type=video'
+            var hotUrl ='https://api.alisadance.cn/api/media/person/1/?limit=20&offset=0&ordering=likes&type=video'
+            var publicIndex=null;
+            var publicID=null;
+            $('.newClass').css('color','#c30d23')
+            unityFn(newUrl,'newList')
+
+        // 显示分类项
+          $('.newClass').on('click',function(){
+            unityFn(newUrl,'newList')
+            $('.newClass').css('color','#c30d23')
+            $('.hotClass').css('color','black')
+              $('.content .newList').show();
+              $('.content .hotList').hide();
+          })
+          $('.hotClass').on('click',function(){
+            unityFn(hotUrl,'hotList')
+            $('.hotClass').css('color','#c30d23')
+            $('.newClass').css('color','black')
+            $('.content .hotList').show();
+              $('.content .newList').hide();
+          })
+            // 顶部点赞按钮
+            $('.details').on('click','.zanIcon',function(e){
+                var medId2=publicID
+                var $that=$(this)
+                if ($(this).hasClass('toZanImg_r')) {
+                    console.log('变没有')
+                    $.ajax({
+                        headers: {
+                            "content-type": 'application/json'
+                        },
+                        url: `https://api.alisadance.cn/api/media/${medId2}/likes`,
+                        contentType: 'application/json;charsetutf-8',
+                        data: JSON.stringify({
+                            "person": unionid,
+                            "action": "unlike"
+                        }),
+                        type: "POST",
+                        success(res) {
+                            console.log(res)
+                            console.log(publicIndex)
+                            $that.removeClass('toZanImg_r').addClass('toZanImg_n')
+                            var valueZan = $('.icon>.zanIcon input').eq(publicIndex).val()
+                            valueZan--
+                            $('.icon>.zanIcon input').eq(publicIndex).val(valueZan)
+                            $('.icon>.zanIcon input').eq(publicIndex).html(valueZan)
+                            $('.icon>.zanIcon .iconList').eq(publicIndex).removeClass('toZanImg_r').addClass('toZanImg_n')
+                            $('.details .right input').attr('value',valueZan)
+                        },
+                        error(msg) {}
+                    })
+                } else if ($(this).hasClass('toZanImg_n')) {
+                    console.log('变有')
+                    $.ajax({
+                        headers: {
+                            "content-type": 'application/json'
+                        },
+                        url: `https://api.alisadance.cn/api/media/${medId2}/likes`,
+                        contentType: 'application/json;charsetutf-8',
+                        data: JSON.stringify({
+                            "person": unionid,
+                            "action": "like"
+                        }),
+                        type: "POST",
+                        success(res) {
+                            console.log(res)
+                            $that.removeClass('toZanImg_n').addClass('toZanImg_r')
+                            var valueZan = $('.icon>.zanIcon input').eq(publicIndex).val()
+                            console.log(valueZan)
+                            valueZan++
+                            $('.icon>.zanIcon input').eq(publicIndex).val(valueZan)
+                            $('.icon>.zanIcon input').eq(publicIndex).html(valueZan)
+                            $('.icon>.zanIcon .iconList').eq(publicIndex).removeClass('toZanImg_n').addClass('toZanImg_r')
+                            $('.details .right input').attr('value',valueZan)
+                        },
+                        error(msg) {}
+                    })
+                }
+            })
+
+            $('.vidBox').on('click',function(){
+                // $('#myVideo').trigger('play')
+              if($('#myVideo').hasClass('toggleVid')){
+                $('#myVideo').trigger('play')
+                $('#myVideo').removeClass('toggleVid')
+              }else{
+                $('#myVideo').trigger('pause')
+                $('#myVideo').addClass('toggleVid')
+              }
+            })
+            // 点击选择播放的视频
+            $('.content').on('click','.btnLook',function(e){
+                var $that=$(this)
+                var vidUrl=e.currentTarget.dataset.vidurl
+                var medId = e.target.dataset.id;
+                var viewslist= e.target.dataset.viewslist;
+                // var likeslist=e.target.dataset.likeslist;
+                var indexView = $('.btnLook').index($that) 
+                publicIndex=indexView
+                publicID=medId
+                var valueView = $('.icon>.lookIcon input').eq(indexView).val()
+                var valueZan = $('.icon>.zanIcon input').eq(indexView).val()
+                var viewslist2=viewslist.split(',')
+               var dataIntArr=viewslist2.map(function(data){  
+                 return +data;  
+                }); 
+                   $('.details .right input').attr('value',valueZan)
+                // 判断视频的点赞情况
+                if($('.icon>.zanIcon  .iconList').eq(indexView).hasClass('toZanImg_r')){
+                    $('.details .right .icons').removeClass('toZanImg_n').addClass('toZanImg_r')
+                }else{
+                    $('.details .right .icons').removeClass('toZanImg_r').addClass('toZanImg_n')
+                }
+                // 判断视频的阅览情况
+                if(dataIntArr.includes(unionid)){
+                    console.log('已经有了')
+                    $('.details .lookIcon').css(`background`,`url('./images/look_gr.svg') no-repeat`)
+                    $('.details .left input').attr('value',valueView)
+                }else{
+                    console.log('添加')
+                    $('.details .lookIcon').css(`background`,`url('./images/look_gr.svg') no-repeat`)
+                    $.ajax({
+                            headers: {
+                                "content-type": 'application/json'
+                            },
+                            url: `https://api.alisadance.cn/api/media/${medId}`,
+                            contentType: 'application/json;charsetutf-8',
+                            data: JSON.stringify({
+                                "person": unionid
+                            }),
+                            type: "POST",
+                            success(res) {
+                                // var viewslist3=res.data.viewslist;
+                                // console.log(viewslist3)
+                                if($('.icon>.lookIcon  .iconList').eq(indexView).hasClass('toReadImg_r')){
+                                    return
+                                }else{
+                            valueView++
+                            console.log(indexView)
+                            $('.icon>.lookIcon  input').eq(indexView).val(valueView)
+                            $('.icon>.lookIcon  input').eq(indexView).html(valueView)
+                            $('.icon>.lookIcon  .iconList').eq(indexView).removeClass('toReadImg_n').addClass('toReadImg_r')
+                            $('.details .left input').attr('value',valueView)
+                                }
+                            console.log(res)
+                            },
+                            error(msg) {}
+                        })
+                }
+                $('#myVideo').attr('src',vidUrl)
+                $('#myVideo').trigger('play')
+            })
+       
+       $('#myVideo').on('play', function () {
+        $('#myVideo').removeClass('toggleVid')
+        });
+        $('#myVideo').on('pause', function () {
+            $('#myVideo').addClass('toggleVid')
+        });
+      
+        // 联合函数，创建统一
+        function unityFn(newUrl,needList){
+            fnAjax(newUrl).then(function(dataList){
+                // console.log(dataList)
+                addLabel(dataList,needList)
+                // 点赞事件
+                $('.icon>.zanIcon>.iconList').on('click',function(e){
+                    var $that=$(this)
+                    var medId = e.target.dataset.id;
+                if ($(this).hasClass('toZanImg_r')) {
+                    // console.log('变没有')
+                    $.ajax({
+                        headers: {
+                            "content-type": 'application/json'
+                        },
+                        url: `https://api.alisadance.cn/api/media/${medId}/likes`,
+                        contentType: 'application/json;charsetutf-8',
+                        data: JSON.stringify({
+                            "person": unionid,
+                            "action": "unlike"
+                        }),
+                        type: "POST",
+                        success(res) {
+                            var indexZan = $('.icon>.zanIcon .iconList').index($that)
+                            var valueZan = $('.icon>.zanIcon input').eq(indexZan).val()
+                            valueZan--
+                            $('.icon>.zanIcon  input').eq(indexZan).val(valueZan)
+                            $('.icon>.zanIcon  input').eq(indexZan).html(valueZan)
+                            $that.removeClass('toZanImg_r').addClass('toZanImg_n')
+                            if(publicIndex==indexZan){
+                                $('.details .right input').attr('value',valueZan)
+                                $('.details .right .icons').removeClass('toZanImg_r').addClass('toZanImg_n')
+                            }
+                          
+                        },
+                        error(msg) {}
+                    })
+                } else if ($(this).hasClass('toZanImg_n')) {
+                    // console.log('变有')
+                    $.ajax({
+                        headers: {
+                            "content-type": 'application/json'
+                        },
+                        url: `https://api.alisadance.cn/api/media/${medId}/likes`,
+                        contentType: 'application/json;charsetutf-8',
+                        data: JSON.stringify({
+                            "person": unionid,
+                            "action": "like"
+                        }),
+                        type: "POST",
+                        success(res) {
+                            var indexZan = $('.icon>.zanIcon .iconList').index($that)
+                            // console.log(indexZan)
+                            var valueZan = $('.icon>.zanIcon input').eq(indexZan).val()
+                            valueZan++
+                            // console.log(indexZan)
+                            $('.icon>.zanIcon input').eq(indexZan).val(valueZan)
+                            $('.icon>.zanIcon input').eq(indexZan).html(valueZan)
+                            $that.removeClass('toZanImg_n').addClass('toZanImg_r')
+                            if(publicIndex==indexZan){
+                                $('.details .right input').attr('value',valueZan)
+                                $('.details .right .icons').removeClass('toZanImg_n').addClass('toZanImg_r')
+                            }
+                          
+                        },
+                        error(msg) {}
+                    })
+                }
+                })
+            })
+        }
+
+
+            // 动态添加标签
+        function addLabel(dataList,needList){
+            for(let item of dataList){
+                    // console.log(item)
+                    var item_url=item.url
+                    var likesNum=item.likeslist.length
+                    var viewsNum=item.viewslist.length
+
+                    if (item.likeslist.includes(unionid)) {
+                        // console.log('存在')
+                        var zanClass = 'toZanImg_r'
+                    } else {
+                        // console.log('不存在')
+                        var zanClass = 'toZanImg_n'
+                    }
+                    if (item.viewslist.includes(unionid)) {
+                        var viewClass = 'toReadImg_r'
+                    } else {
+                        var viewClass = 'toReadImg_n'
+                    }
+                    $(`.content>.${needList}`).append(
+                        `
+                        <div class="item">
+                    <div class="imgBox">
+                        <img src=${item_url}?vframe/jpg/offset/0/w/1280/h/760 alt="资源不存在">
+                    </div>
+                    <div class="info">
+                        <span>视频编号：${item.id}</span>
+                        <span>来源：小跳多后台</span>
+                        <span class="btnLook"  data-viewslist='${item.viewslist}'  data-id='${item.id}' data-vidUrl='${item_url}'>点击观看</span>
+                        
+                    </div>
+                    <div class="icon">
+                        <div class="zanIcon">
+                            <div  class='iconList ${zanClass}' data-id='${item.id}' ></div>
+                            <input readonly type='text' value='${likesNum}'>
+                        </div>
+                        <div class="lookIcon">
+                                <div class='iconList ${viewClass}'></div>
+                            <input readonly type='text' value='${viewsNum}'>
+                        </div>
+                    </div>
+                </div>
+                `
+                    )
+                }
+        }
+            function fnAjax(url) {
+                            return new Promise(function (resolve, reject) {
+                                $.ajax({
+                                    headers: {
+                                        "content-type": 'application/json'
+                                    },
+                                    url: url,
+                                    contentType: 'application/json;charsetutf-8',
+                                    type: "GET",
+                                    success(res) {
+                                        // console.log(res)
+                                        var res = res.data;
+                                        var results = res.results
+                                        // console.log(results)
+                                        resolve(results)
+                                    },
+                                    error(msg) {
+                                        reject(msg)
+                                    }
+                                })
+                            })
+                        }
+
+        })
+    </script>
+</body>
+
+</html>
